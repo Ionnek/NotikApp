@@ -1,9 +1,32 @@
 package com.example.achievera.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 
-@Entity(primaryKeys = ["noteId", "tagId"])
+@Entity(
+    tableName = "NoteTagCrossRef",
+    primaryKeys = ["noteId", "tagId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = NotesDatabaseElement::class,
+            parentColumns = ["id"],
+            childColumns = ["noteId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Tag::class,
+            parentColumns = ["id"],
+            childColumns = ["tagId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["noteId"]),
+        Index(value = ["tagId"])
+    ]
+)
 data class NoteTagCrossRef(
-    val noteId: Int,
-    val tagId: Int
+    val noteId: Long,
+    val tagId: Long
 )

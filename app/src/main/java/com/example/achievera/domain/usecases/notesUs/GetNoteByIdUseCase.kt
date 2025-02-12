@@ -4,8 +4,8 @@ import com.example.achievera.data.model.NotesDatabaseElement
 import com.example.achievera.domain.repositoryInterfaces.INotesRepository
 import javax.inject.Inject
 
-class InsertNoteUseCase @Inject constructor(private val notesRepository: INotesRepository) {
-    suspend operator fun invoke(note: NotesDatabaseElement):Long {
-        return notesRepository.insertNote(note)
+class GetNoteByIdUseCase @Inject constructor(private val NotesRepository:INotesRepository) {
+    suspend operator fun invoke(NoteId: Long):NotesDatabaseElement {
+        return NotesRepository.getNoteByID(NoteId)
     }
 }

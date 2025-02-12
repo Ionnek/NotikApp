@@ -1,9 +1,10 @@
-package com.example.achievera.ui.view
+package com.example.achievera.ui.view.NoteEdit
 
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridItemScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.runtime.Composable
@@ -51,5 +52,26 @@ private data class PagingPlaceholderKey(private val index: Int) : Parcelable {
 
                 override fun newArray(size: Int) = arrayOfNulls<PagingPlaceholderKey?>(size)
             }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun <T : Any> LazyListScope.pagingItems(
+    items: LazyPagingItems<T>,
+    key: ((item: T) -> Any)? = null,
+    itemContent: @Composable (item: T) -> Unit
+) {
+    items(
+        count = items.itemCount,
+        key = if (key == null) null else { index ->
+            val item = items.peek(index)
+            if (item == null) {
+                PagingPlaceholderKey(index)
+            } else {
+                key(item)
+            }
+        }
+    ) { index ->
+        items[index]?.let { itemContent(it) }
     }
 }

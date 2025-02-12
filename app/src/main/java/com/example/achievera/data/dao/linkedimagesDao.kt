@@ -1,22 +1,25 @@
 package com.example.achievera.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.achievera.data.model.LinkedImage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface linkedimagesDao
 {
-    @Query("SELECT * FROM linked_images WHERE note_id = :noteId")//запрос к базе данных, который выбирает все записи из таблицы linked_images, где значение поля noteId соответствует заданному noteId
-    suspend fun getLinkedImages(noteId: Long): List<LinkedImage>
+    @Query("SELECT * FROM linked_images WHERE note_id = :noteId")
+    fun getLinkedImages(noteId: Long): Flow<List<LinkedImage>>
 
-    @Insert//вставляет новую запись в таблицу linked_images с заданным noteId и imageUri
+    @Insert
     suspend fun insertLinkedImage(linkedImage: LinkedImage)
 
-    @Query("DELETE FROM linked_images WHERE id = :id")//удаляет запись из таблицы linked_images по заданному id
-    suspend fun deleteLinkedImage(id: Long)
+    @Delete
+    suspend fun deleteLinkedImage(linkedImage: LinkedImage)
 
-    @Query("DELETE FROM linked_images WHERE note_id = :noteId")//удаляет все записи из таблицы linked_images, которые соответствуют заданному noteId
+    @Query("DELETE FROM linked_images WHERE note_id = :noteId")
     suspend fun deleteLinkedImagesByNoteId(noteId: Long)
 }

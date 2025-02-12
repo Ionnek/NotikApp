@@ -45,6 +45,7 @@ dependencies {
     implementation (libs.app.compat)
     implementation (libs.androidx.core.ktx)
     implementation (platform(libs.compose.bom))
+    implementation(libs.androidx.compose.material)
     androidTestImplementation (platform(libs.compose.bom))
     implementation (libs.hilt.compose)
     implementation (libs.material3) // или libs.material
@@ -66,6 +67,7 @@ dependencies {
     implementation (libs.lifecycle.viewmodel.compose)
     implementation (libs.runtime.livedata)
     implementation (libs.runtime.rxjava2)
+    implementation(libs.coil)
 
     // Для тестирования
     androidTestImplementation (libs.androidx.espresso.core)

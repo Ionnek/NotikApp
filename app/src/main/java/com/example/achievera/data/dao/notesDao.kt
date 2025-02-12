@@ -4,10 +4,12 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.achievera.data.model.NotesDatabaseElement
 
-@Dao//аннотация для интерфейса Dao
+@Dao
 interface notesDao{
 
     @Query("SELECT * FROM notes")
@@ -17,7 +19,7 @@ interface notesDao{
     suspend fun getNoteById(id: Long): NotesDatabaseElement
 
     @Insert
-    suspend fun insertNote(note: NotesDatabaseElement)
+    suspend fun insertNote(note: NotesDatabaseElement):Long
 
     @Update
     suspend fun updateNote(note: NotesDatabaseElement)
@@ -25,18 +27,7 @@ interface notesDao{
     @Query("DELETE FROM notes WHERE id = :id")
     suspend fun deleteNote(id: Long)
 
-    @Query("""
-        SELECT * FROM notes 
-        JOIN NoteTagCrossRef ON notes.id = NoteTagCrossRef.noteId
-        WHERE (name LIKE '%' || :query || '%' 
-           OR text LIKE '%' || :query || '%')
-           AND NoteTagCrossRef.tagId = :tagId
-        ORDER BY date DESC 
-    """)
-    fun searchNotes(query: String,tagId: Int): PagingSource<Int, NotesDatabaseElement>
+    @RawQuery(observedEntities = [NotesDatabaseElement::class])
+    fun searchNotes(query: SupportSQLiteQuery): PagingSource<Int, NotesDatabaseElement>
+
 }
-/*
-This code defines a Data Access Object (DAO) interface for interacting with a
- database table named "notes". It uses Room,
-a persistence library for Android, to manage database operations.
-*/

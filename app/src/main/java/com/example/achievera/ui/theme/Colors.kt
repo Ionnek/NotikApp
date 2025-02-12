@@ -28,3 +28,6 @@ val CardColorDarkPurpleGrad2 = Color(0xFFB9B0D7)
 val CardColorYellowGrad1 = Color(0xFFD1C9B7)
 val CardColorYellowGrad2 = Color(0xFFD7C6B0)
 
+val DarkBackgroundGrad1 = Color(0xFF1F3041)
+val DarkBackgroundGrad2 = Color(0xFF21282E)
+

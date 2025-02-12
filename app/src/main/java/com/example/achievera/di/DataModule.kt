@@ -31,7 +31,7 @@ object DataModule {
             appContext,
             DBmanager::class.java,
             "app-database"
-        ).build()
+        ).addMigrations(DBmanager.MIGRATION_1_2,DBmanager.MIGRATION_2_3,DBmanager.MIGRATION_3_4).build()
     }
 
     @Provides

@@ -1,6 +1,11 @@
 package com.example.achievera.ui.viewModel
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,11 +21,10 @@ import com.example.achievera.domain.usecases.linkedImagesUs.DeleteLinkedImagesBy
 import com.example.achievera.domain.usecases.linkedImagesUs.GetLinkedImagesUseCase
 import com.example.achievera.domain.usecases.linkedImagesUs.InsertLinkedImageUseCase
 import com.example.achievera.domain.usecases.notesUs.DeleteNoteUseCase
-import com.example.achievera.domain.usecases.notesUs.GetAllNotesUseCase
-import com.example.achievera.domain.usecases.notesUs.InsertNoteUseCase
 import com.example.achievera.domain.usecases.notesUs.EditNoteUseCase
 import com.example.achievera.domain.usecases.notesUs.GetNoteByIdUseCase
 import com.example.achievera.domain.usecases.notesUs.GetSearchQueryUseCase
+import com.example.achievera.domain.usecases.notesUs.InsertNoteUseCase
 import com.example.achievera.domain.usecases.tagsUs.DeleteCurrentNoteTagUseCase
 import com.example.achievera.domain.usecases.tagsUs.DeleteTagUseCase
 import com.example.achievera.domain.usecases.tagsUs.GetAllTagsUseCase
@@ -28,6 +32,9 @@ import com.example.achievera.domain.usecases.tagsUs.GetCurrentNoteTagsUseCase
 import com.example.achievera.domain.usecases.tagsUs.GetNotesByTagUseCase
 import com.example.achievera.domain.usecases.tagsUs.InsertCurrentNoteTagUseCase
 import com.example.achievera.domain.usecases.tagsUs.InsertTagUseCase
+import com.example.achievera.ui.view.NoteEdit.LineWithCheckBoxAndCursorDetect
+import com.example.achievera.ui.view.NoteEdit.deserialize
+import com.example.achievera.ui.view.NoteEdit.serialize
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -39,17 +46,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class NotesListViewModel @Inject constructor(
-    private val insertNoteUseCase: InsertNoteUseCase,
+class NoteEditViewModel @Inject constructor(
     private val deleteNoteUseCase: DeleteNoteUseCase,
     private val editNoteUseCase: EditNoteUseCase,
-    private val searchQueryUseCase: GetSearchQueryUseCase,
     private val InsertTagUseCase: InsertTagUseCase,
     private val DeleteTagUseCase: DeleteTagUseCase,
     private val GetAllTagsUseCase: GetAllTagsUseCase,
@@ -60,40 +63,120 @@ class NotesListViewModel @Inject constructor(
     private val DeleteLinkedImageUseCase: DeleteLinkedImageUseCase,
     private val GetLinkedImagesUseCase: GetLinkedImagesUseCase,
     private val DeleteLinkedImagesByNoteIdUseCase: DeleteLinkedImagesByNoteIdUseCase,
-    private val GetNoteByIdUseCase:GetNoteByIdUseCase,
+    private val GetNoteByIdUseCase: GetNoteByIdUseCase,
     private val GetNotesByTagUseCase: GetNotesByTagUseCase
-) : ViewModel(),INotesListViewModel {
+) : ViewModel(){
     init {
         GettAllTags()
-        updateTagsToActiveFilter()
     }
-    override var MenoState=1
+    var selectedLine by mutableIntStateOf(0)
+        private set
+    var isImageActive by mutableStateOf(false)
+        private set
+    var isChekboxesActive by mutableStateOf(false)
+        private set
+    var linesList by mutableStateOf<List<LineWithCheckBoxAndCursorDetect>>(emptyList())
+        private set
+    var NNoteId by mutableStateOf<Long>(0)
+        private set
+    fun setNoteId(id:Long){
+        NNoteId=id
+    }
+    fun assignLinesList(text: String){
+        linesList=deserialize(text)
+    }
+
+    fun assignReadyLinesList(text: List<LineWithCheckBoxAndCursorDetect>){
+        linesList=text
+    }
+    fun updateSelectedLine(LineId:Int){
+        selectedLine=LineId
+    }
+    fun linesListEmtyChek():Boolean{
+        if(linesList.isNotEmpty()){
+        for (line in linesList){
+            if (line.text.text!=""){
+                return false
+            }else{
+                return true}
+        }}
+        return true
+
+    }
+    fun changeLineChekboxStatus(){
+        linesList = linesList.map { line ->
+            if (line.id == selectedLine) {
+                // Создаем копию линии с инвертированным значением isChecked
+                line.copy(hasCheckbox = !line.hasCheckbox, isChecked = false)
+            } else {
+                line
+            }
+        }
+    }
+    fun addEmptyLine(hasChebox: Boolean =false) {
+        // Здесь можно задать id, например, как максимальное значение id + 1
+        linesList = linesList + LineWithCheckBoxAndCursorDetect(
+            id = linesList.size + 1,
+            text = TextFieldValue(""),
+            isChecked = false,
+            hasCheckbox = hasChebox
+        )
+    }
+    fun addEmptyInsideLine(hasChebox: Boolean = false):Int {
+        // Создаём новую линию с уникальным id (можно улучшить логику генерации id, если потребуется)
+        val newLine = LineWithCheckBoxAndCursorDetect(
+            id = linesList.size + 1,
+            text = TextFieldValue(""),
+            isChecked = false,
+            hasCheckbox = hasChebox
+        )
+
+        // Определяем индекс для вставки:
+        // Если selectedLine указывает на существующий элемент, вставляем после него,
+        // иначе (например, если selectedLine выходит за пределы списка) — добавляем в конец.
+        val insertIndex =
+            if (selectedLine in linesList.indices) selectedLine + 1 else linesList.size
+
+        // Если linesList является неизменяемым списком, то преобразуем его в изменяемый,
+        // вставляем новый элемент, затем присваиваем обратно.
+        val mutableList = linesList.toMutableList()
+        mutableList.add(insertIndex, newLine)
+        linesList = mutableList.toList()
+        return insertIndex
+    }
+    fun removeLine(lineid:Int){
+        linesList = linesList.filter { it.id != lineid }
+    }
+    // Метод для переключения состояния
+    fun toggleImageActive(state:Boolean) {
+        isImageActive = state
+    }
+    fun toggleChekBoxesActive(state:Boolean) {
+        isChekboxesActive = state
+    }
 
     private val _images = MutableStateFlow<List<LinkedImage>>(emptyList())
-    override val images: StateFlow<List<LinkedImage>> get() = _images
+    val images: StateFlow<List<LinkedImage>> get() = _images
 
     private val _Tags = MutableStateFlow<List<Tag>>(emptyList())
-    override val tags: StateFlow<List<Tag>> get() = _Tags
+    val tags: StateFlow<List<Tag>> get() = _Tags
 
     private val _FilterTags = MutableStateFlow<List<Tag>>(emptyList())
-    override val FilterTags: StateFlow<List<Tag>> get() = _FilterTags
+    val FilterTags: StateFlow<List<Tag>> get() = _FilterTags
 
     private val _NoteTags = MutableStateFlow<List<Tag>>(emptyList())
-    override val NoteTags: StateFlow<List<Tag>> get() = _NoteTags
+    val NoteTags: StateFlow<List<Tag>> get() = _NoteTags
 
     private val _note = MutableLiveData<NotesDatabaseElement>()
-    override val note: LiveData<NotesDatabaseElement> get() = _note
+    val note: LiveData<NotesDatabaseElement> get() = _note
 
-    private val currentQuery = MutableStateFlow("")
-    private val QueryTagFilters = MutableStateFlow<Set<Long>>(emptySet())
 
     private val _insertedNoteId = MutableStateFlow<Long>(0)
-    override val insertedNoteId: StateFlow<Long> get() = _insertedNoteId
 
     private val _eventFlow = MutableSharedFlow<NotesListEvent>(replay = 0)
-    override val eventFlow = _eventFlow.asSharedFlow()
+    val eventFlow = _eventFlow.asSharedFlow()
 
-    override val testImageList = listOf(
+    val testImageList = listOf(
         R.drawable.test_photo_1,
         R.drawable.test_photo_2,
         R.drawable.test_photo_3,
@@ -102,123 +185,48 @@ class NotesListViewModel @Inject constructor(
         R.drawable.test_photo_2,
         R.drawable.test_photo_3
     )
-    override fun getNotesByTag(tagId: Long): Flow<List<NotesDatabaseElement>> {
-        return GetNotesByTagUseCase(tagId).flowOn(Dispatchers.IO)
-    }
-    override fun addTagToQuery(tagId: Long) {
-        QueryTagFilters.value += tagId
-        updateTagsToActiveFilter()
-    }
-    override fun removeTagFromQuery(tagId: Long) {
-        QueryTagFilters.value -= tagId
-        updateTagsToActiveFilter()
-    }
-    override fun updateTagsToActiveFilter() {
-        viewModelScope.launch {
-            try {
-                // Получаем все теги из UseCase
-                val allTags = GetAllTagsUseCase().first() // Предполагается, что это Flow<List<Tag>>
 
-                // Обновляем состояние isActived для каждого тега на основе фильтров
-                val updatedFilterTags = allTags.map { tag ->
-                    tag.copy(isActived = QueryTagFilters.value.contains(tag.id))
-                }
-
-                // Обновляем состояние фильтров тегов
-                _FilterTags.value = updatedFilterTags
-
-                // Логирование для отладки
-                Log.d("NotesListViewModel", "Обновленные фильтры тегов: $updatedFilterTags")
-            } catch (e: Exception) {
-                Log.e("NotesListViewModel", "Ошибка при обновлении фильтров тегов: ${e.message}")
-            }
-        }
-    }
-    override fun setQuery(query: String,) {
-        currentQuery.value = query
-    }
-
-    override val notes: Flow<PagingData<NotesDatabaseElement>> =
-        combine(currentQuery, QueryTagFilters) { query, tagIds ->
-            Pair(query, tagIds)
-        }.flatMapLatest { (query, tagIds) ->
-            searchQueryUseCase(query, tagIds)
-        }.cachedIn(viewModelScope)
-
-    override fun getNoteById(id: Long) {
+    fun getNoteById(id: Long) {
         viewModelScope.launch() {
             _note.value = GetNoteByIdUseCase(id)
         }
     }
 
-    override fun insertNote(name: String, date: Long, dateEdited: String, text: String, reminder: Long, color: String, isHandwritten: Boolean,checkboxes:String) {
+    fun deleteNote(note: NotesDatabaseElement) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val newNote = NotesDatabaseElement(
-                    id = 0, // Предполагается, что ID генерируется автоматически
-                    name = name,
-                    date = date,
-                    dateEdited = dateEdited,
-                    text = text,
-                    reminder = reminder,
-                    color = color,
-                    isHandwritten = isHandwritten,
-                    chekboxes = checkboxes
-                )
-                val newId = insertNoteUseCase(newNote)
-                Log.d("NotesListViewModel", "Создалась новая пустая заметка с id: $newId")
-                _eventFlow.emit(NotesListEvent.NoteInserted(newId))
-                // Другие действия, например, обновление списков
-            } catch (e: Exception) {
-                Log.d("NotesListViewModel", "Не Создалась новая пустая заметка ")
-            }
-            setQuery("")
-        }
-    }
-    override fun deleteNote(note: NotesDatabaseElement) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                        deleteNoteUseCase(note.id)
-                        setQuery("")
+                deleteNoteUseCase(note.id)
             } catch (e: Exception) {
                 Log.e("NotesListViewModel", "Ошибка при удалении заметки: ${e.message}")
             }
         }
     }
-    override fun updateNote(id:Long, name: String, date: Long, dateEdited: String, text: String, reminder: Long, color: String, isHandwritten: Boolean,checkboxes: String) {
+    fun updateNote(id:Long, name: String, date: Long, dateEdited: String, text: String, reminder: Long, color: String, isHandwritten: Boolean,checkboxes: String) {
         viewModelScope.launch(Dispatchers.IO) {
             var n1= NotesDatabaseElement(id, name, date, dateEdited, text, reminder, color, isHandwritten, chekboxes = checkboxes)
             editNoteUseCase(n1)
-            setQuery("")
         }
     }
-    override fun InsertStandaloneTag(name: String, color: String, isActived: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            InsertTagUseCase(name,color,isActived)
-            updateTagsToActiveFilter()
-        }
-    }
-    override fun InsertTag(NoteId:Long,name: String, color: String, isActived: Boolean) {
+    fun InsertTag(NoteId:Long,name: String, color: String, isActived: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             var id=InsertTagUseCase(name,color,isActived)
             InsertCurrentNoteTag(NoteId,id)
-            updateTagsToActiveFilter()
         }
     }
-    override fun DeleteTag(tag:Tag) {
+    fun DeleteTag(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             DeleteTagUseCase(tag)
-            updateTagsToActiveFilter()
         }
+
     }
-    override fun GettAllTags(){
+    fun GettAllTags(){
         viewModelScope.launch(Dispatchers.IO) {
             GetAllTagsUseCase().collect { tagsList ->
                 _Tags.value = tagsList
             }
         }
     }
-    override fun InsertCurrentNoteTag(noteId: Long, tagId: Long) {
+    fun InsertCurrentNoteTag(noteId: Long, tagId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("NotesListViewModel", "тег в Заметку вставляется: ${noteId},${tagId}")
             InsertCurrentNoteTagUseCase(noteId, tagId)
@@ -226,7 +234,7 @@ class NotesListViewModel @Inject constructor(
         }
     }
 
-    override fun DeleteCurrentNoteTag(noteId: Long, tagId: Long) {
+    fun DeleteCurrentNoteTag(noteId: Long, tagId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("NotesListViewModel", "тег из Заметки удаляется: ${noteId},${tagId}")
             DeleteCurrentNoteTagUseCase(noteId, tagId)
@@ -234,7 +242,7 @@ class NotesListViewModel @Inject constructor(
         }
     }
 
-    override fun updateActiveTags(noteId: Long) {//получить список всех тегов но с подсвеченными активными по этой заметке)
+    fun updateActiveTags(noteId: Long) {//получить список всех тегов но с подсвеченными активными по этой заметке)
         viewModelScope.launch(Dispatchers.IO) {
             // Получаем все теги и теги, привязанные к заметке, с помощью combine
             combine(
@@ -257,18 +265,18 @@ class NotesListViewModel @Inject constructor(
         }
     }
 
-    override fun InsertNewPhoto(id: Long, noteId: Long, imageUrl: String) {
+    fun InsertNewPhoto(id: Long, noteId: Long, imageUrl: String) {
         viewModelScope.launch(Dispatchers.IO) {
             insertLinkedImageUseCase(id, noteId, imageUrl)
         }
     }
 
-    override fun DeletePhoto(id: Long, noteId: Long, imageUrl: String) {
+    fun DeletePhoto(id: Long, noteId: Long, imageUrl: String) {
         viewModelScope.launch(Dispatchers.IO) {
             DeleteLinkedImageUseCase(id, noteId, imageUrl)
         }
     }
-    override fun GetNotePhotos(noteId: Long) {
+    fun GetNotePhotos(noteId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             GetLinkedImagesUseCase(noteId).collect { photoList ->
                 _images.value = photoList
@@ -276,13 +284,26 @@ class NotesListViewModel @Inject constructor(
         }
     }
 
-    override fun DeleteAllPhotos(noteId: Long) {
+    fun DeleteAllPhotos(noteId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             DeleteLinkedImagesByNoteIdUseCase(noteId)
         }
     }
-}
-
-sealed class NotesListEvent {
-    data class NoteInserted(val noteId: Long) : NotesListEvent()
+    fun LinesToGoodTexts():String{
+        var TextStingBuilder=""
+        for (line in linesList){
+            if(line.hasCheckbox){
+                if(line.isChecked){
+                    TextStingBuilder=TextStingBuilder+"☑"
+                }else{TextStingBuilder=TextStingBuilder+"☐"}
+            }
+            TextStingBuilder=TextStingBuilder+line.text.text
+            TextStingBuilder=TextStingBuilder+"\n"
+        }
+        return TextStingBuilder
+    }
+    //штуки в кастомную обертку
+    //штуки в кастомную обертку
+    //штуки в кастомную обертку
+    //штуки в кастомную обертку
 }

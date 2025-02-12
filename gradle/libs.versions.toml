@@ -24,6 +24,9 @@ gson-version = "2.11.0"
 paging-compose-version="3.3.2"
 paging ="3.3.2"
 compact="1.7.0"
+composeMaterial = "1.4.0"
+accompanist ="0.31.5-beta"
+coil = "2.4.0"
 
 [libraries]
 app-compat = { module = "androidx.appcompat:appcompat",version.ref = "compact"}
@@ -53,9 +56,11 @@ hilt-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref =
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson-version" }
 
+coil = {module = "io.coil-kt:coil-compose", version.ref = "coil"}
 
 paging-compose={ module ="androidx.paging:paging-compose", version.ref = "paging-compose-version"}
 paging={ module = "androidx.paging:paging-runtime", version.ref = "paging"}
+androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

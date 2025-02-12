@@ -2,12 +2,9 @@ package com.example.achievera.ui.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,6 +12,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.achievera.ui.theme.TestMultyScreensTheme
+import com.example.achievera.ui.view.NoteEdit.ScreenNoteEdit
+import com.example.achievera.ui.view.NoteListing.ScreenNotesListing1
 import com.example.achievera.ui.viewModel.NotesListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,7 +42,7 @@ fun NavigationMain() {
     val navController = rememberNavController()
     val viewModel: NotesListViewModel = hiltViewModel()
     NavHost(navController = navController, startDestination = Screen.Home.route) {
-        composable(Screen.Home.route) { ScreenNotesListing(navController,viewModel) }
+        composable(Screen.Home.route) { ScreenNotesListing1(navController,viewModel) }
         composable(
             route = Screen.EditNote.route,
             arguments = listOf(
@@ -51,10 +50,9 @@ fun NavigationMain() {
                 navArgument("id") { type = NavType.LongType }
             )
         ) { backStackEntry ->
-            // Извлечение аргументов из backStackEntry
             val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: false
             val id = backStackEntry.arguments?.getLong("id") ?: 0
-            ScreenNoteEdit(navController, isNew, id,viewModel)
+            ScreenNoteEdit(navController, isNew, id)
         }
     }
 }

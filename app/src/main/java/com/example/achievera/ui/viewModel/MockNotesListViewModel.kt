@@ -5,17 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import com.example.achievera.data.model.NotesDatabaseElement
 import androidx.lifecycle.ViewModel
 import androidx.paging.PagingData
+import com.example.achievera.R
+import com.example.achievera.data.model.LinkedImage
+import com.example.achievera.data.model.Tag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
-// Мок-ViewModel для превью
 class MockNotesListViewModel : ViewModel(), INotesListViewModel {
-
-    // Predefined data for the list of notes
-    private val _notesFor = MutableLiveData<List<NotesDatabaseElement>>(
+    override var MenoState=1
+    private val _notesFor = MutableLiveData(
         listOf(
             NotesDatabaseElement(
                 id = 1L,
@@ -25,7 +28,8 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
                 dateEdited = "01.01.2024",
                 reminder = 0L,
                 color = "red",
-                isHandwritten = false
+                isHandwritten = false,
+                chekboxes= "{}"
             ),
             NotesDatabaseElement(
                 id = 2L,
@@ -35,20 +39,75 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
                 dateEdited = "02.01.2024",
                 reminder = 0L,
                 color = "blue",
-                isHandwritten = true
+                isHandwritten = true,
+                chekboxes= "{}"
             )
         )
     )
-    override val notesFor: LiveData<List<NotesDatabaseElement>> get() = _notesFor
+    private val _images = MutableStateFlow(
+        listOf(
+            LinkedImage(
+            id = 1L,
+            imageUri = "",
+            noteId = 1L
+            )
+        )
+    )
+    override val testImageList = listOf(
+        R.drawable.test_photo_1,
+        R.drawable.test_photo_2,
+        R.drawable.test_photo_3,
+        R.drawable.test_photo_4,
+        R.drawable.test_photo_1,
+        R.drawable.test_photo_2,
+        R.drawable.test_photo_3
+    )
+    private val _Tags = MutableStateFlow(
+        listOf(
+            Tag(
+                id = 1L,
+                name = "Mock Tag 1",
+                color = "Red",
+                isActived = false
+            ),
+            Tag(
+                id = 2L,
+                name = "Mock Tag 2",
+                color = "Blue",
+                isActived = false
+            ),
+            Tag(
+                id = 3L,
+                name = "Mock Tag 3",
+                color = "Purple",
+                isActived = false
+            ),
+            Tag(
+                id = 4L,
+                name = "Mock Tag 4",
+                color = "Green",
+                isActived = false
+            )
 
-    // Predefined data for a single note
+        )
+    )
+    override fun getNotesByTag(tagId: Long): Flow<List<NotesDatabaseElement>>{
+        return emptyFlow()
+    }
+    override fun addTagToQuery(tagId: Long) {}
+
     private val _note = MutableLiveData<NotesDatabaseElement>()
     override val note: LiveData<NotesDatabaseElement> get() = _note
-
-    // StateFlow for managing search queries
+    override val tags: StateFlow<List<Tag>> get() = _Tags
+    override val FilterTags: StateFlow<List<Tag>> = MutableStateFlow(emptyList())
     private val currentQuery = MutableStateFlow("")
+    override val NoteTags: StateFlow<List<Tag>> = MutableStateFlow(emptyList())
 
-    // Implement the Flow<PagingData<NotesDatabaseElement>>
+    override val eventFlow: Flow<NotesListEvent> = flowOf()
+    override val insertedNoteId: StateFlow<Long> = MutableStateFlow(0)
+    override val images: StateFlow<List<LinkedImage>>
+        get() = _images
+
     override val notes: Flow<PagingData<NotesDatabaseElement>> =
         currentQuery.flatMapLatest { query ->
             val filteredNotes = if (query.isEmpty()) {
@@ -61,17 +120,11 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
             flow { emit(PagingData.from(filteredNotes)) }
         }
 
-    override fun setQuery(query: String) {
-        currentQuery.value = query
-    }
-
-    override fun loadNotes() {
-        // In the mock, notes are already loaded in _notesFor initialization
-    }
-
-    override fun getNoteById(id: Long) {
-        val foundNote = _notesFor.value?.find { it.id == id }
-    }
+    override fun updateTagsToActiveFilter() {}
+    override fun removeTagFromQuery(tagId: Long) {}
+    override fun setQuery(query: String) {}
+    override fun InsertStandaloneTag(name: String, color: String, isActived: Boolean) {}
+    override fun getNoteById(id: Long) {}
 
     override fun insertNote(
         name: String,
@@ -80,7 +133,8 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
         text: String,
         reminder: Long,
         color: String,
-        isHandwritten: Boolean
+        isHandwritten: Boolean,
+        chekboxes: String
     ) {
         val newId = (_notesFor.value?.maxOfOrNull { it.id } ?: 0L) + 1
         val newNote = NotesDatabaseElement(
@@ -91,7 +145,8 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
             dateEdited = dateEdited,
             reminder = reminder,
             color = color,
-            isHandwritten = isHandwritten
+            isHandwritten = isHandwritten,
+            chekboxes= "{}"
         )
         val updatedNotes = _notesFor.value?.toMutableList() ?: mutableListOf()
         updatedNotes.add(newNote)
@@ -112,7 +167,8 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
         text: String,
         reminder: Long,
         color: String,
-        isHandwritten: Boolean
+        isHandwritten: Boolean,
+        chekboxes:String
     ) {
         val updatedNotes = _notesFor.value?.map {
             if (it.id == id) {
@@ -123,7 +179,8 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
                     text = text,
                     reminder = reminder,
                     color = color,
-                    isHandwritten = isHandwritten
+                    isHandwritten = isHandwritten,
+                    chekboxes= "{}"
                 )
             } else {
                 it
@@ -131,4 +188,15 @@ class MockNotesListViewModel : ViewModel(), INotesListViewModel {
         }
         _notesFor.value = updatedNotes ?: emptyList()
     }
+
+    override fun InsertTag(id: Long,s: String, s1: String, a: Boolean){}
+    override fun DeleteTag(tag:Tag){}
+    override fun GettAllTags(){}
+    override fun InsertCurrentNoteTag(noteId: Long, tagId: Long) {}
+    override fun DeleteCurrentNoteTag(noteId: Long, tagId: Long) {}
+    override fun InsertNewPhoto(id: Long,noteId: Long,imageUrl:String){}
+    override fun DeletePhoto(id: Long,noteId: Long,imageUrl:String){}
+    override fun updateActiveTags(noteId: Long) {}
+    override fun GetNotePhotos(noteId: Long) {}
+    override fun DeleteAllPhotos(noteId: Long) {}
 }
