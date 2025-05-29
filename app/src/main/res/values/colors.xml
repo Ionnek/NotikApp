@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="BackgroundColor">#FF2D302D</color>
+    <color name="AccentColorGrad1">#FFD8D7D5</color>
+    <color name="CardColorBlueGrad1">#FFB7D0D1</color>
+    <color name="CardColorPurplegrad1">#FFD1B7CF</color>
+    <color name="CardColorRedGrad1">#FFD1B7B7</color>
+    <color name="CardColorGreenGrad1">#FFC8D1B7</color>
+    <color name="CardColorDarkPurpleGrad1">#FFB8B7D1</color>
+    <color name="CardColorYellowGrad1">#FFD1C9B7</color>
+    <color name="main_color">#FFD8D7D5</color>
+    <color name="DarkBackgroundGrad1">#FF1F3041</color>
+    <color name="DarkBackgroundGrad2">#FF21282E</color>
 </resources>

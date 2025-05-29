@@ -1,50 +1,45 @@
 [versions]
 agp = "8.6.1"
-kotlin = "2.0.0"
-kotlin-compose = "2.0.0"
+kotlin = "2.0.21"
+kotlin-compose = "2.0.21"
 coreKtx = "1.13.1"
 espressoCore = "3.6.1"
 compose-bom = "2024.09.03"
 material3 = "1.3.0"
-ui-tooling-preview = "1.7.3"
-ui-tooling = "1.7.3"
-ui-test-junit4 = "1.7.3"
-ui-test-manifest = "1.7.3"
-material-icons-core = "1.7.3"
-material-icons-extended = "1.7.3"
+compose = "1.7.3"
 adaptive = "1.0.0"
 hilt-compose-bridge ="1.2.0"
 activity-compose = "1.9.2"
 lifecycle-viewmodel-compose = "2.8.6"
-runtime-livedata = "1.7.3"
-runtime-rxjava2 = "1.7.3"
 room = "2.6.1"
 hilt = "2.50"
 gson-version = "2.11.0"
-paging-compose-version="3.3.2"
 paging ="3.3.2"
 compact="1.7.0"
 composeMaterial = "1.4.0"
-accompanist ="0.31.5-beta"
 coil = "2.4.0"
 
 [libraries]
+
 app-compat = { module = "androidx.appcompat:appcompat",version.ref = "compact"}
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+
+
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "ui-tooling-preview" }
-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "ui-tooling" }
-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "ui-test-junit4" }
-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "ui-test-manifest" }
-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "material-icons-core" }
-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
+material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "compose" }
+material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }
-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "runtime-livedata" }
-runtime-rxjava2 = { module = "androidx.compose.runtime:runtime-rxjava2", version.ref = "runtime-rxjava2" }
+runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "compose" }
+runtime-rxjava2 = { module = "androidx.compose.runtime:runtime-rxjava2", version.ref = "compose" }
 
 room-database = { module ="androidx.room:room-runtime", version.ref = "room"}
 room-kotlin = { module ="androidx.room:room-ktx", version.ref = "room"}
@@ -58,7 +53,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson-vers
 
 coil = {module = "io.coil-kt:coil-compose", version.ref = "coil"}
 
-paging-compose={ module ="androidx.paging:paging-compose", version.ref = "paging-compose-version"}
+paging-compose={ module ="androidx.paging:paging-compose", version.ref = "paging"}
 paging={ module = "androidx.paging:paging-runtime", version.ref = "paging"}
 androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
 
@@ -66,4 +61,5 @@ androidx-compose-material = { group = "androidx.wear.compose", name = "compose-m
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-compose"}
-hilt= { id = "com.google.dagger.hilt.android",version.ref ="hilt"}
+ksp = {id = "com.google.devtools.ksp", version = "2.0.21-1.0.28"}
+hilt= { id = "com.google.dagger.hilt.android",version.ref = "hilt"}

@@ -1,21 +1,25 @@
+/*
+ * Copyright 2025 Ivan Borzykh
+ * SPDX-License-Identifier: MIT
+ */
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.hilt)
-    kotlin("kapt")
+    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.example.achievera"
+    namespace = "com.borzykh.achievera"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.achievera"
+        applicationId = "com.borzykh.achievera"
         minSdk = 30
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,11 +37,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
@@ -48,7 +52,7 @@ dependencies {
     implementation(libs.androidx.compose.material)
     androidTestImplementation (platform(libs.compose.bom))
     implementation (libs.hilt.compose)
-    implementation (libs.material3) // или libs.material
+    implementation (libs.material3)
 
     implementation (libs.paging)
     implementation (libs.paging.compose)
@@ -69,17 +73,16 @@ dependencies {
     implementation (libs.runtime.rxjava2)
     implementation(libs.coil)
 
-    // Для тестирования
     androidTestImplementation (libs.androidx.espresso.core)
 
-    kapt (libs.room.compiler)
+    ksp (libs.room.compiler)
 
     implementation (libs.room.database)
     implementation (libs.room.kotlin)
     implementation (libs.room.paging)
 
     implementation (libs.hilt.android)
-    kapt (libs.hilt.compiler)
+    ksp (libs.hilt.compiler)
 
     implementation(libs.gson)
 }

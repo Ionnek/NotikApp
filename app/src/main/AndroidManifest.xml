@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.achievera">
-
+    package="com.borzykh.achievera">
     <application
-        android:name=".app"
+        android:name="com.borzykh.achievera.app"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -17,16 +16,30 @@
         <meta-data
             android:name="com.google.android.actions"
             android:resource="@xml/nav_graph" />
-
         <activity
-            android:name=".ui.view.MainScreenV"
+            android:name="com.borzykh.achievera.ui.view.MainScreenV"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver android:name="com.borzykh.achievera.ui.view.MyNoteWidgetProvider"
+            android:exported="true"
+            android:label="Notik note widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/my_note_widget_info"/>
+        </receiver>
+        <activity android:name="com.borzykh.achievera.ui.view.WidgetConfigActivity"
+            android:exported="true"
+            android:label="Select note">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
     </application>

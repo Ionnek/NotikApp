@@ -2,6 +2,5 @@
     <!-- Base application theme. -->
          <!-- Base application theme. -->
     <style name="Theme.MyApplication" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
     </style>
 </resources>
