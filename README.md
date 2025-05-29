@@ -1,3 +1,4 @@
+Currently in closed testing on Google Play — message me and I’ll add you as a tester!
 Mobile Android client for an offline notes+checkboxes app built as a learning pet-project.  
 (Room + Paging + Jetpack Compose)  
 Kotlin • Material 3
